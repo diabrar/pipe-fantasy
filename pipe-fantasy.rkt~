@@ -44,10 +44,10 @@
 (define TILE-LENGTH 50)
 (define PIPE-WIDTH 15)
 
-(define (TOP-PIPE PW TSL f?) (design-pipe PW (+ (* TSL .5) (* PW .5)) f?) )
-(define (BOT-PIPE PW TSL f?) (design-pipe PW (+ (* TSL .5) (* PW .5)) f?) )
-(define (LEFT-PIPE PW TSL f?) (design-pipe (+ (* TSL .5) (* PW .5)) PW f?))
-(define (RIGHT-PIPE PW TSL f?) (design-pipe (+ (* TSL .5) (* PW .5)) PW f?))
+(define (TOP-PIPE PW TSL) (design-pipe PW (+ (* TSL .5) (* PW .5))) )
+(define (BOT-PIPE PW TSL) (design-pipe PW (+ (* TSL .5) (* PW .5))) )
+(define (LEFT-PIPE PW TSL) (design-pipe (+ (* TSL .5) (* PW .5)) PW))
+(define (RIGHT-PIPE PW TSL) (design-pipe (+ (* TSL .5) (* PW .5)) PW))
 
 (define (TOP-POSN PW TSL) (make-posn (* TSL .5) (* (+ (* TSL .5) (* PW .5)) .5)))
 (define (BOT-POSN PW TSL) (make-posn (* TSL .5) (- TSL (* (+ (* TSL .5) (* PW .5)) .5))))
@@ -63,10 +63,10 @@
   (cond
     [(and (pipe-top pipe) (pipe-bot pipe) (pipe-left pipe) (pipe-right pipe))
      (place-images
-      (cons (TOP-PIPE pipe-width tile-side-length filled?)   ;top
-            (cons(BOT-PIPE pipe-width tile-side-length filled?) ;bottom
-            (cons (LEFT-PIPE pipe-width tile-side-length filled?) ;left
-            (cons (RIGHT-PIPE pipe-width tile-side-length filled?) '())))) ;right
+      (cons (TOP-PIPE pipe-width tile-side-length)  ;top
+            (cons(BOT-PIPE pipe-width tile-side-length) ;bottom
+            (cons (LEFT-PIPE pipe-width tile-side-length) ;left
+            (cons (RIGHT-PIPE pipe-width tile-side-length) '())))) ;right
       (cons (TOP-POSN pipe-width tile-side-length)
             (cons (BOT-POSN pipe-width tile-side-length)
             (cons (LEFT-POSN pipe-width tile-side-length)
@@ -74,43 +74,43 @@
       (tile tile-side-length))]
     [(and (pipe-top pipe) (pipe-left pipe))
      (place-images
-      (cons (TOP-PIPE pipe-width tile-side-length filled?)
-            (cons (LEFT-PIPE pipe-width tile-side-length filled?) '()))
+      (cons (TOP-PIPE pipe-width tile-side-length)
+            (cons (LEFT-PIPE pipe-width tile-side-length) '()))
       (cons (TOP-POSN pipe-width tile-side-length)
             (cons(LEFT-POSN pipe-width tile-side-length) '()))
       (tile tile-side-length))]
     [(and (pipe-top pipe) (pipe-right pipe))
      (place-images
-      (cons (TOP-PIPE pipe-width tile-side-length filled?)
-            (cons (RIGHT-PIPE pipe-width tile-side-length filled?) '()))
+      (cons (TOP-PIPE pipe-width tile-side-length)
+            (cons (RIGHT-PIPE pipe-width tile-side-length) '()))
       (cons (TOP-POSN pipe-width tile-side-length)
             (cons (RIGHT-POSN pipe-width tile-side-length) '()))
       (tile tile-side-length))]
     [(and (pipe-bot pipe) (pipe-left pipe))
      (place-images
-      (cons (BOT-PIPE pipe-width tile-side-length filled?)
-            (cons (LEFT-PIPE pipe-width tile-side-length filled?)  '()))
+      (cons (BOT-PIPE pipe-width tile-side-length)
+            (cons (LEFT-PIPE pipe-width tile-side-length) '()))
       (cons (BOT-POSN pipe-width tile-side-length)
             (cons (LEFT-POSN pipe-width tile-side-length) '()))
       (tile tile-side-length))]
     [(and (pipe-bot pipe) (pipe-right pipe))
     (place-images
-     (cons (BOT-PIPE pipe-width tile-side-length filled?)
-           (cons (RIGHT-PIPE pipe-width tile-side-length filled?) '()))
+     (cons (BOT-PIPE pipe-width tile-side-length)
+           (cons (RIGHT-PIPE pipe-width tile-side-length) '()))
      (cons (BOT-POSN pipe-width tile-side-length)
             (cons (RIGHT-POSN pipe-width tile-side-length) '()))
      (tile tile-side-length))]
     [(and (pipe-top pipe) (pipe-bot pipe))
      (place-images
-      (cons (TOP-PIPE pipe-width tile-side-length filled?) 
-            (cons (BOT-PIPE pipe-width tile-side-length filled?) '()))
+      (cons (TOP-PIPE pipe-width tile-side-length) 
+            (cons (BOT-PIPE pipe-width tile-side-length) '()))
       (cons (TOP-POSN pipe-width tile-side-length)
             (cons (BOT-POSN pipe-width tile-side-length) '()))
       (tile tile-side-length))]
     [(and (pipe-left pipe) (pipe-right pipe))
      (place-images
-      (cons (LEFT-PIPE pipe-width tile-side-length filled?) 
-            (cons (RIGHT-PIPE pipe-width tile-side-length filled?) '()))
+      (cons (LEFT-PIPE pipe-width tile-side-length) 
+            (cons (RIGHT-PIPE pipe-width tile-side-length) '()))
       (cons (LEFT-POSN pipe-width tile-side-length)
             (cons (RIGHT-POSN pipe-width tile-side-length) '()))
       (tile tile-side-length))]))
@@ -125,16 +125,15 @@
 
 ; design-pipe : Number Number -> Image
 ; draws the pipe based on the given width and length.
-(check-expect (design-pipe 15 50 #f) (rectangle 15 50 "solid" "black"))
-(check-expect (design-pipe 20 90 #t) (rectangle 20 90 "solid" "green"))
-(check-expect (design-pipe 10 10 #f) (rectangle 10 10 "solid" "black"))
-(define (design-pipe w l f?)
-  (if f? (rectangle w l "solid" "green")
-      (rectangle w l "solid" "black")))
+(check-expect (design-pipe 15 50) (rectangle 15 50 "solid" "black"))
+(check-expect (design-pipe 20 90) (rectangle 20 90 "solid" "black"))
+(check-expect (design-pipe 10 10) (rectangle 10 10 "solid" "black"))
+(define (design-pipe w l)
+  (rectangle w l "solid" "black"))
 
-(pipe->image PIPE-TL PIPE-WIDTH TILE-LENGTH #t)
-(pipe->image PIPE-TR PIPE-WIDTH TILE-LENGTH #t)
-(pipe->image PIPE-BL PIPE-WIDTH TILE-LENGTH #t)
+(pipe->image PIPE-TL PIPE-WIDTH TILE-LENGTH #f)
+(pipe->image PIPE-TR PIPE-WIDTH TILE-LENGTH #f)
+(pipe->image PIPE-BL PIPE-WIDTH TILE-LENGTH #f)
 (pipe->image PIPE-BR PIPE-WIDTH TILE-LENGTH #f)   
 (pipe->image PIPE-TB PIPE-WIDTH TILE-LENGTH #f)
 (pipe->image PIPE-LR PIPE-WIDTH TILE-LENGTH #f)
