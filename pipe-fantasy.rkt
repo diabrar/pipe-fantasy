@@ -268,6 +268,111 @@
                                                              (grid-tile-length grid)
                                                              (grid-pipe-width grid))
                                                   row col))]))
+;show-4-pipes : Gamestate->image
+;Outputs the first 4 pipes in the list
+(check-expect (show-4-pipes GS-1) (overlay (overlay/offset (overlay/offset 
+                    (pipe->image (first (gamestate-pipes GS-1))
+                                 (grid-pipe-width (gamestate-grid GS-1))
+                                 (grid-tile-length (gamestate-grid GS-1))
+                                 (starting-pipe? (first(gamestate-pipes GS-1))))
+                     0 (grid-tile-length (gamestate-grid GS-1))
+                    (pipe->image (first (rest (gamestate-pipes GS-1)))
+                                 (grid-pipe-width (gamestate-grid GS-1))
+                                 (grid-tile-length (gamestate-grid GS-1))
+                                 (starting-pipe? (first(rest(gamestate-pipes GS-1))))))
+                    0 (* 1.5 (grid-tile-length (gamestate-grid GS-1)))
+                     (pipe->image (first (rest (rest (gamestate-pipes GS-1))))
+                                  (grid-pipe-width (gamestate-grid GS-1))
+                                  (grid-tile-length (gamestate-grid GS-1))
+                                  (starting-pipe? (first(rest(rest(gamestate-pipes GS-1)))))))
+              (rectangle (grid-tile-length (gamestate-grid GS-1))
+                         (* 4 (grid-tile-length (gamestate-grid GS-1))) "solid" "white")))
+
+
+(check-expect (show-4-pipes GS-2) (overlay (overlay/offset (overlay/offset 
+                    (pipe->image (first (gamestate-pipes GS-2))
+                                 (grid-pipe-width (gamestate-grid GS-2))
+                                 (grid-tile-length (gamestate-grid GS-2))
+                                 (starting-pipe? (first(gamestate-pipes GS-2))))
+                     0 (grid-tile-length (gamestate-grid GS-2))
+                    (pipe->image (first (rest (gamestate-pipes GS-2)))
+                                 (grid-pipe-width (gamestate-grid GS-2))
+                                 (grid-tile-length (gamestate-grid GS-2))
+                                 (starting-pipe? (first(rest(gamestate-pipes GS-2))))))
+                    0 (* 1.5 (grid-tile-length (gamestate-grid GS-2)))
+                     (pipe->image (first (rest (rest (gamestate-pipes GS-2))))
+                                  (grid-pipe-width (gamestate-grid GS-2))
+                                  (grid-tile-length (gamestate-grid GS-2))
+                                  (starting-pipe? (first(rest(rest(gamestate-pipes GS-2)))))))
+              (rectangle (grid-tile-length (gamestate-grid GS-2))
+                         (* 4 (grid-tile-length (gamestate-grid GS-2))) "solid" "white")))
+
+
+(define (show-4-pipes GS)
+  (cond
+    [(>= (length(gamestate-pipes GS)) 4)
+     (overlay (overlay/offset (overlay/offset (overlay/offset 
+                    (pipe->image (first (gamestate-pipes GS))
+                                 (grid-pipe-width (gamestate-grid GS))
+                                 (grid-tile-length (gamestate-grid GS))
+                                 (starting-pipe? (first(gamestate-pipes GS))))
+                     0 (grid-tile-length (gamestate-grid GS))
+                    (pipe->image (first (rest (gamestate-pipes GS)))
+                                 (grid-pipe-width (gamestate-grid GS))
+                                 (grid-tile-length (gamestate-grid GS))
+                                 (starting-pipe? (first(rest(gamestate-pipes GS))))))
+                    0 (* 1.5 (grid-tile-length (gamestate-grid GS)))
+                     (pipe->image (first (rest (rest (gamestate-pipes GS))))
+                                  (grid-pipe-width (gamestate-grid GS))
+                                  (grid-tile-length (gamestate-grid GS))
+                                  (starting-pipe? (first(rest(rest(gamestate-pipes GS)))))))
+                     0 (* 2 (grid-tile-length (gamestate-grid GS)))
+                       (pipe->image (first (rest(rest (rest (gamestate-pipes GS)))))
+                                    (grid-pipe-width (gamestate-grid GS))
+                                    (grid-tile-length (gamestate-grid GS))
+                                    (starting-pipe? (first(rest(rest(rest(gamestate-pipes GS))))))))
+               (rectangle (grid-tile-length (gamestate-grid GS))
+                          (* 4 (grid-tile-length (gamestate-grid GS))) "solid" "white"))]
+    [(= (length(gamestate-pipes GS)) 3)
+     (overlay (overlay/offset (overlay/offset 
+                    (pipe->image (first (gamestate-pipes GS))
+                                 (grid-pipe-width (gamestate-grid GS))
+                                 (grid-tile-length (gamestate-grid GS))
+                                 (starting-pipe? (first(gamestate-pipes GS))))
+                     0 (grid-tile-length (gamestate-grid GS))
+                    (pipe->image (first (rest (gamestate-pipes GS)))
+                                 (grid-pipe-width (gamestate-grid GS))
+                                 (grid-tile-length (gamestate-grid GS))
+                                 (starting-pipe? (first(rest(gamestate-pipes GS))))))
+                    0 (* 1.5 (grid-tile-length (gamestate-grid GS)))
+                     (pipe->image (first (rest (rest (gamestate-pipes GS))))
+                                  (grid-pipe-width (gamestate-grid GS))
+                                  (grid-tile-length (gamestate-grid GS))
+                                  (starting-pipe? (first(rest(rest(gamestate-pipes GS)))))))
+              (rectangle (grid-tile-length (gamestate-grid GS))
+                         (* 4 (grid-tile-length (gamestate-grid GS))) "solid" "white"))]
+    [(= (length (gamestate-pipes GS)) 2)
+    (overlay (overlay/offset 
+                    (pipe->image (first (gamestate-pipes GS))
+                                 (grid-pipe-width (gamestate-grid GS))
+                                 (grid-tile-length (gamestate-grid GS))
+                                 (starting-pipe? (first(gamestate-pipes GS))))
+                     0 (grid-tile-length (gamestate-grid GS))
+                    (pipe->image (first (rest (gamestate-pipes GS)))
+                                 (grid-pipe-width (gamestate-grid GS))
+                                 (grid-tile-length (gamestate-grid GS))
+                                 (starting-pipe? (first(rest(gamestate-pipes GS))))))
+              (rectangle (grid-tile-length (gamestate-grid GS))
+                         (* 4 (grid-tile-length (gamestate-grid GS))) "solid" "white"))]
+    [(= (length (gamestate-pipes GS)) 1)
+       (overlay (pipe->image (first (gamestate-pipes GS))
+                             (grid-pipe-width (gamestate-grid GS))
+                             (grid-tile-length (gamestate-grid GS))
+                             (starting-pipe? (first(gamestate-pipes GS))))
+        (rectangle (grid-tile-length (gamestate-grid GS))
+                   (* 4 (grid-tile-length (gamestate-grid GS))) "solid" "white"))]
+    [(= (length (gamestate-pipes GS)) 0)
+     (rectangle 10 10 "solid" "white")]))
 
 ;; grid->image: Grid Integer Integer -> Image
 ;; Draws the grid of pipes with each tile being tile-side-length long
@@ -620,10 +725,10 @@
 ; draw-game : GameState -> Image
 ; passes the correct parameters to grid->image to draw the current GameState
 (check-expect (draw-game GS-1)
-              (place-images
+              (beside/align "middle" (place-images
                (all-tiles (grid-list-pc (gamestate-grid GS-1)) 50 15)
                (position (grid-list-pc (gamestate-grid GS-1)) 50)
-               (draw-box (grid-n (gamestate-grid GS-1)) (grid-n (gamestate-grid GS-1)) 50)))
+               (draw-box (grid-n (gamestate-grid GS-1)) (grid-n (gamestate-grid GS-1)) 50)) (show-4-pipes GS-1)))
 #;(check-expect (draw-game GS-2)
               (place-images
                (all-tiles (grid-list-pc (gamestate-grid GS-2)) 50 15)
@@ -635,9 +740,10 @@
                (position (grid-list-pc (gamestate-grid GS-3)) 50)
                (draw-box (grid-n (gamestate-grid GS-3)) (grid-n (gamestate-grid GS-3)) 50)))
 (define (draw-game gs)
-  (grid->image (gamestate-grid gs)
+  (beside/align "middle" (grid->image (gamestate-grid gs)
                (grid-tile-length (gamestate-grid gs))
-               (grid-pipe-width (gamestate-grid gs))))
+               (grid-pipe-width (gamestate-grid gs)))
+                (show-4-pipes gs)))
 
 (define (pipe-fantasy initial-game-state)
   (big-bang initial-game-state
