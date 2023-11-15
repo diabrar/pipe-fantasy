@@ -456,6 +456,24 @@
                (list PIPE-BL PIPE-TB)
                (make-pipe-coord PIPE-STARTING-R 1 1 #t)
                (make-goo-flow (list (make-pipe-coord PIPE-STARTING-R 1 1 #t)) RIGHT)))
+(check-expect (place-pipe-on-click (make-gamestate (make-grid 4 (list (make-pipe-coord PIPE-BL 1 2 #f)
+                                                                      (make-pipe-coord PIPE-STARTING-R 1 1 #t))
+                                                              50 15)
+                                                   (list)
+                                                   (make-pipe-coord PIPE-STARTING-R 1 1 #t)
+                                                   (make-goo-flow (list (make-pipe-coord PIPE-STARTING-R 1 1 #t)) RIGHT))
+                                   100 100
+                                   "button-down")
+              (make-gamestate (make-grid 4
+                                         (list (make-pipe-coord PIPE-BL 1 2 #true)
+                                               (make-pipe-coord PIPE-STARTING-R 1 1 #true))
+                                         50 15)
+                              '()
+                              (make-pipe-coord PIPE-STARTING-R 1 1 #true)
+                              (make-goo-flow (list
+                                              (make-pipe-coord PIPE-BL 1 2 #true)
+                                              (make-pipe-coord PIPE-STARTING-R 1 1 #true)) BOTTOM)))
+
 #;(check-expect (place-pipe-on-click GS-2 52 25 "button-down")
               (make-gamestate
                (make-grid 8 (list (make-pipe-coord PIPE-BL 0 1 #f) STARTING-PC-T PC-2 PC-1) 50 15)
@@ -468,7 +486,19 @@
 
 (define (place-pipe-on-click gs x y m)
   (cond [(string=? m "button-down")
-         (cond [(empty? (gamestate-pipes gs)) gs]
+         (cond [(empty? (gamestate-pipes gs))
+                (make-gamestate (make-grid (grid-n (gamestate-grid gs))
+                                           (cons (make-pipe-coord (pipe-coord-pipe (first (grid-list-pc (gamestate-grid gs))))
+                                                                  (pipe-coord-r (first (grid-list-pc (gamestate-grid gs))))
+                                                                  (pipe-coord-c (first (grid-list-pc (gamestate-grid gs))))
+                                                                  #true)
+                                                 (rest (grid-list-pc (gamestate-grid gs))))
+                                           (grid-tile-length (gamestate-grid gs))
+                                           (grid-pipe-width (gamestate-grid gs)))
+                                (list)
+                                (gamestate-starting-pipe gs)
+                                (grid-goo-propagate (gamestate-goo-flow gs)
+                                                    (gamestate-grid gs)))]
                [(cons? (gamestate-pipes gs))
                 (make-gamestate (place-pipe (gamestate-grid gs)
                                             (first (gamestate-pipes gs))
@@ -512,6 +542,12 @@
               (make-goo-flow (list (make-pipe-coord PIPE-TL 1 2 #t)
                                                        (make-pipe-coord PIPE-BR 0 2 #t)
                                                        (make-pipe-coord PIPE-BL 0 3 #t)) LEFT))
+(check-expect (grid-goo-propagate (make-goo-flow (list (make-pipe-coord PIPE-STARTING-R 1 1 #t)) RIGHT)
+                                  (make-grid 4 (list (make-pipe-coord PIPE-BL 1 2 #f)
+                                                     (make-pipe-coord PIPE-STARTING-R 1 1 #t))
+                                             50 15))
+              (make-goo-flow (list (make-pipe-coord PIPE-BL 1 2 #t)
+                                   (make-pipe-coord PIPE-STARTING-R 1 1 #t)) BOTTOM)) 
 
 (define (grid-goo-propagate gf g)
   (local [; make-goo : Direction [List-of PC] -> GooFlow
