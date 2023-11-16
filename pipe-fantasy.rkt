@@ -590,33 +590,48 @@
                               (list PIPE-BL PIPE-TL PIPE-TBLR PIPE-BR)))
 
 (define (place-pipe-on-click gs x y m)
-  (cond [(string=? m "button-down")
-         (cond [(empty? (gamestate-pipes gs))
-                (make-gamestate (make-grid (grid-n (gamestate-grid gs))
-                                           (cons (make-pipe-coord (pipe-coord-pipe (first (grid-list-pc (gamestate-grid gs))))
-                                                                  (pipe-coord-r (first (grid-list-pc (gamestate-grid gs))))
-                                                                  (pipe-coord-c (first (grid-list-pc (gamestate-grid gs))))
-                                                                  #true)
-                                                 (rest (grid-list-pc (gamestate-grid gs))))
-                                           (grid-tile-length (gamestate-grid gs))
-                                           (grid-pipe-width (gamestate-grid gs)))
-                                (list)
-                                (gamestate-starting-pipe gs)
-                                (grid-goo-propagate (gamestate-goo-flow gs)
-                                                    (gamestate-grid gs)))]
-               [(cons? (gamestate-pipes gs))
-                (make-gamestate (place-pipe (gamestate-grid gs)
-                                            (first (gamestate-pipes gs))
-                                            (pipe-pos y
-                                                      (grid-n (gamestate-grid gs))
-                                                      (grid-tile-length (gamestate-grid gs)))
-                                            (pipe-pos x
-                                                      (grid-n (gamestate-grid gs))
-                                                      (grid-tile-length (gamestate-grid gs))))
-                                (rest (gamestate-pipes gs))
-                                (gamestate-starting-pipe gs)
-                                (gamestate-goo-flow gs))])]
-        [else gs]))
+  (local [; fill-pipe : [List-of PC] -> Pipe-Coord
+          ; fills the next pipe with goo
+          (define (fill-pipe lpc)
+            (if (pipe-coord-filled? (second lpc))
+                (make-pipe-coord (pipe-coord-pipe (first lpc))
+                                 (pipe-coord-r (first lpc))
+                                 (pipe-coord-c (first lpc))
+                                 #true)
+                (fill-pipe (rest lpc))))
+          ; update-list : [List-of PC] -> [List-of PC]
+          ; adds the filled pipe to the list
+          (define (update-list lpc)
+            (map (lambda (x) (if (and (= (pipe-coord-r x) (pipe-coord-r (fill-pipe lpc)))
+                                      (= (pipe-coord-c x) (pipe-coord-c (fill-pipe lpc))))
+                                 (fill-pipe lpc)
+                                 x))
+                 lpc))]
+    (cond [(string=? m "button-down") 
+           (cond [(empty? (gamestate-pipes gs))
+                  (make-gamestate (make-grid (grid-n (gamestate-grid gs))
+                                             (update-list (grid-list-pc (gamestate-grid gs)))
+                                             (grid-tile-length (gamestate-grid gs))
+                                             (grid-pipe-width (gamestate-grid gs)))
+                                  (list)
+                                  (gamestate-starting-pipe gs)
+                                  (grid-goo-propagate (gamestate-goo-flow gs)
+                                                      (gamestate-grid gs)))]
+                 [(cons? (gamestate-pipes gs))
+                  (if (not (> x (* (grid-tile-length (gamestate-grid gs)) (grid-n (gamestate-grid gs)))))
+                      (make-gamestate (place-pipe (gamestate-grid gs)
+                                                  (first (gamestate-pipes gs))
+                                                  (pipe-pos y
+                                                            (grid-n (gamestate-grid gs))
+                                                            (grid-tile-length (gamestate-grid gs)))
+                                                  (pipe-pos x
+                                                            (grid-n (gamestate-grid gs))
+                                                            (grid-tile-length (gamestate-grid gs))))
+                                      (rest (gamestate-pipes gs))
+                                      (gamestate-starting-pipe gs)
+                                      (gamestate-goo-flow gs))
+                      gs)])]
+          [else gs])))
 
 ; pipe-pos : Number Number Number -> Number
 ; determines the row/column value of the pipe based on its position,
