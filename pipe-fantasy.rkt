@@ -435,13 +435,13 @@
 (check-expect (starting-pipe? PIPE-STARTING-L) #t)
 (check-expect (starting-pipe? PIPE-TL) #f)
 (check-expect (starting-pipe? PIPE-STARTING-R) #t)
-(define (starting-pipe? p)
+(define (starting-pipe? p) 
   (cond
     [(and (pipe-top p) (pipe-bot p) (pipe-left p) (pipe-right p)) #f]
     [(and (pipe-top p) (pipe-bot p)) #f]
     [(and (pipe-top p) (pipe-right p)) #f]
     [(and (pipe-top p) (pipe-left p)) #f]
-    [(and (pipe-left p) (pipe-right p)) #f]
+    [(and (pipe-left p) (pipe-right p)) #f] 
     [(and (pipe-left p) (pipe-bot p)) #f]
     [(and (pipe-right p) (pipe-bot p)) #f]
     [else #t]))
@@ -449,14 +449,14 @@
 ; all-tiles : [List-of PC] Number Number -> [List-of PC]
 ; draws all the pipes in a list with the pipes being the width pipe-width
 ; and the length of the tile being tile-side-length
-#;(check-expect (all-tiles LPC-1 30 20) (list (pipe->image PIPE-STARTING-L 20 30 #t)
+(check-expect (all-tiles LPC-1 30 20 GOO-FLOW-1) (list (pipe->image PIPE-STARTING-L 20 30 #F)
                                             (pipe->image PIPE-TL 20 30 #f)))
 
-#;(check-expect (all-tiles LPC-2 20 10) (list (pipe->image PIPE-STARTING-T 10 20 #t)
+(check-expect (all-tiles LPC-2 20 10 GOO-FLOW-2) (list (pipe->image PIPE-STARTING-T 10 20 #F)
                                             (pipe->image PIPE-BR 10 20 #f)
                                             (pipe->image PIPE-TL 10 20 #f)))
 
-#;(check-expect (all-tiles LPC-3 100 50) (list (pipe->image PIPE-STARTING-R 50 100 #t)
+(check-expect (all-tiles LPC-3 100 50 GOO-FLOW-3) (list (pipe->image PIPE-STARTING-R 50 100 #f)
                                              (pipe->image PIPE-TL 50 100 #f)
                                              (pipe->image PIPE-TR 50 100 #f)
                                              (pipe->image PIPE-BR 50 100 #f)
@@ -587,32 +587,23 @@
                (make-pipe-coord PIPE-STARTING-R 1 1 #t)
                (make-goo-flow (list (make-pipe-coord PIPE-STARTING-R 1 1 #t)) RIGHT)))
 (check-expect (place-pipe-on-click (make-gamestate (make-grid 4 (list (make-pipe-coord PIPE-BL 1 2 #f)
-                                                                      (make-pipe-coord PIPE-STARTING-R 1 1 #t))
-                                                              50 15)
-                                                   (list)
-                                                   (make-pipe-coord PIPE-STARTING-R 1 1 #t)
-                                                   (make-goo-flow (list (make-pipe-coord PIPE-STARTING-R 1 1 #t)) RIGHT))
-                                   100 100
-                                   "button-down")
-              (make-gamestate (make-grid 4
-                                         (list (make-pipe-coord PIPE-BL 1 2 #true)
-                                               (make-pipe-coord PIPE-STARTING-R 1 1 #true))
-                                         50 15)
-                              '()
-                              (make-pipe-coord PIPE-STARTING-R 1 1 #true)
-                              (make-goo-flow (list
-                                              (make-pipe-coord PIPE-BL 1 2 #true)
-                                              (make-pipe-coord PIPE-STARTING-R 1 1 #true)) BOTTOM)))
+                                                                      (make-pipe-coord PIPE-STARTING-R 1 1 #t)) 50 15)
+                                                                (list)
+                                                                      (make-pipe-coord PIPE-STARTING-R 1 1 #t)
+                                                                      (make-goo-flow (list (make-pipe-coord PIPE-STARTING-R 1 1 #t)) RIGHT))100 100 "button-down")
+              (make-gamestate (make-grid 4(list (make-pipe-coord PIPE-BL 1 2 #true)
+                                                (make-pipe-coord PIPE-STARTING-R 1 1 #true))50 15)'()
+                                                (make-pipe-coord PIPE-STARTING-R 1 1 #true)
+                              (make-goo-flow (list(make-pipe-coord PIPE-BL 1 2 #true)(make-pipe-coord PIPE-STARTING-R 1 1 #true)) BOTTOM)))
 
-#;(check-expect (place-pipe-on-click GS-2 52 25 "button-down")
-              (make-gamestate
-               (make-grid 8 (list (make-pipe-coord PIPE-BL 0 1 #f) STARTING-PC-T PC-2 PC-1) 50 15)
-               (list PIPE-BL PIPE-TL PIPE-TBLR PIPE-BR)))
-#;(check-expect (place-pipe-on-click GS-3 10 10 "button-down") GS-3)
-#;(check-expect (place-pipe-on-click (make-gamestate GRID1 PIPES-2) 160 110 "button-down")
-              (make-gamestate (make-grid 4 (list (make-pipe-coord PIPE-BL 2 3 #f)
-                                                 STARTING-PC-L) 50 15)
-                              (list PIPE-BL PIPE-TL PIPE-TBLR PIPE-BR)))
+(check-expect (place-pipe-on-click GS-2 52 25 "button-down")
+             (make-gamestate
+              (make-grid 7 (list (make-pipe-coord (make-pipe #true #false #true #false) 0 1 #false)
+                                 (make-pipe-coord (make-pipe #false #false #false #true) 1 1 #true)) 50 15)
+              (list (make-pipe #false #true #true #false) (make-pipe #true #true #false #false))
+              (make-pipe-coord (make-pipe #false #false #false #true) 1 1 #true)
+              (make-goo-flow (list (make-pipe-coord (make-pipe #false #false #false #true) 1 1 #true)) "right")))
+
 
 (define (place-pipe-on-click gs x y m)
   (local [; fill-pipe : [List-of PC] -> Pipe-Coord
@@ -823,21 +814,24 @@
 
 ; draw-game : GameState -> Image
 ; passes the correct parameters to grid->image to draw the current GameState
-#;(check-expect (draw-game GS-1)
-              (beside/align "middle" (place-images
-               (all-tiles (grid-list-pc (gamestate-grid GS-1)) 50 15)
-               (position (grid-list-pc (gamestate-grid GS-1)) 50)
-               (draw-box (grid-n (gamestate-grid GS-1)) (grid-n (gamestate-grid GS-1)) 50)) (show-4-pipes GS-1)))
-#;(check-expect (draw-game GS-2)
-              (place-images
-               (all-tiles (grid-list-pc (gamestate-grid GS-2)) 50 15)
-               (position (grid-list-pc (gamestate-grid GS-2)) 50)
-               (draw-box (grid-n (gamestate-grid GS-2)) (grid-n (gamestate-grid GS-2)) 50)))
-#;(check-expect (draw-game GS-3)
-              (place-images
-               (all-tiles (grid-list-pc (gamestate-grid GS-3)) 50 15)
-               (position (grid-list-pc (gamestate-grid GS-3)) 50)
-               (draw-box (grid-n (gamestate-grid GS-3)) (grid-n (gamestate-grid GS-3)) 50)))
+(check-expect (draw-game GS-1)
+              (beside/align "middle"
+              (grid->image (gamestate-grid GS-1) (grid-tile-length (gamestate-grid GS-1))
+              (grid-pipe-width (gamestate-grid GS-1)) (gamestate-goo-flow GS-1)) (show-4-pipes GS-1)))
+
+(check-expect (draw-game GS-2)
+              (beside/align "middle"
+              (grid->image (gamestate-grid GS-2) (grid-tile-length (gamestate-grid GS-2))
+              (grid-pipe-width (gamestate-grid GS-2)) (gamestate-goo-flow GS-2)) (show-4-pipes GS-2)))
+
+
+(check-expect (draw-game GAMESTATE-1)
+              (beside/align "middle"
+               (grid->image (gamestate-grid GAMESTATE-1) (grid-tile-length (gamestate-grid GAMESTATE-1))
+              (grid-pipe-width (gamestate-grid GAMESTATE-1)) (gamestate-goo-flow GAMESTATE-1)) (show-4-pipes GAMESTATE-1)))
+
+
+
 (define (draw-game gs)
   (beside/align "middle" (grid->image (gamestate-grid gs)
                (grid-tile-length (gamestate-grid gs))
@@ -861,5 +855,4 @@
                                                      PIPE-TL
                                                      PIPE-LR)))
 
-;(pipe-fantasy GS-1)
-             
+;(pipe-fantasy GAMESTATE-1)  
